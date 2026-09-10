@@ -289,6 +289,8 @@ export function ReadingPane({
                   key={att.id}
                   href={att.download_url || "#"}
                   download={att.filename}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-muted/50 hover:bg-muted text-xs font-medium text-foreground transition-colors"
                 >
                   <Paperclip className="size-3.5 text-primary" />

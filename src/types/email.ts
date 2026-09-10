@@ -63,6 +63,7 @@ export interface SendEmailPayload {
   html?: string;
   text?: string;
   reply_to?: string;
+  attachments?: string[];
 }
 
 export interface MailboxStats {

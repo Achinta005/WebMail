@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
@@ -10,11 +8,19 @@ import {
   ChevronUp,
   CornerDownRight,
   Loader2,
-  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useComposeStore } from "@/stores/useComposeStore";
 import type { SendEmailPayload } from "@/types/email";
+import type { ChangeEvent } from "react";
+
+interface AttachmentMeta {
+  id: string;
+  filename: string;
+  content_type: string;
+  size: number;
+  content_id: string | null;
+}
 
 interface ComposeDialogProps {
   primaryDomain: string;
@@ -42,6 +48,7 @@ export function ComposeDialog({ primaryDomain, onSend }: ComposeDialogProps) {
   const [customFrom, setCustomFrom] = useState("");
   const [isCustomSender, setIsCustomSender] = useState(false);
   const [configuredAliases, setConfiguredAliases] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<AttachmentMeta[]>([]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -63,6 +70,24 @@ export function ComposeDialog({ primaryDomain, onSend }: ComposeDialogProps) {
   ];
 
   const aliases = Array.from(new Set([...fallbackAliases, ...configuredAliases]));
+
+  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    const newMetas: AttachmentMeta[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const form = new FormData();
+      form.append("file", files[i]);
+      const res = await fetch("/api/attachments", { method: "POST", body: form });
+      if (res.ok) {
+        const meta: AttachmentMeta = await res.json();
+        newMetas.push(meta);
+      } else {
+        toast.error("Failed to upload attachment");
+      }
+    }
+    setAttachments((prev) => [...prev, ...newMetas]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +141,7 @@ export function ComposeDialog({ primaryDomain, onSend }: ComposeDialogProps) {
       subject,
       text: fullText,
       html: fullHtml,
+      attachments: attachments.map((a) => a.id),
     };
 
     const ok = await onSend(payload);
@@ -316,10 +342,49 @@ export function ComposeDialog({ primaryDomain, onSend }: ComposeDialogProps) {
             </div>
 
             {/* Bottom Footer */}
-            <div className="p-3 border-t border-border bg-muted/40 flex items-center justify-between">
-              <div className="text-[11px] text-muted-foreground">
-                Outgoing mail processed through Resend API
+            <div className="p-3 border-t border-border bg-muted/40 flex flex-col gap-2">
+              {/* Attachment UI */}
+              <div className="flex items-center gap-2">
+                <label
+                  htmlFor="attachment-input"
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <Paperclip className="size-3.5" />
+                  Attach files
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  id="attachment-input"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
               </div>
+              {attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {attachments.map((a) => (
+                    <span
+                      key={a.id}
+                      className="inline-flex items-center gap-1 bg-muted rounded px-2 py-0.5 text-xs text-foreground"
+                    >
+                      {a.filename}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setAttachments((prev) => prev.filter((x) => x.id !== a.id))
+                        }
+                        className="text-muted-foreground hover:text-foreground ml-1"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] text-muted-foreground">
+                  Outgoing mail processed through Resend API
+                </div>
 
               <div className="flex items-center gap-2">
                 <button
@@ -347,6 +412,7 @@ export function ComposeDialog({ primaryDomain, onSend }: ComposeDialogProps) {
                     </>
                   )}
                 </button>
+              </div>
               </div>
             </div>
           </form>
