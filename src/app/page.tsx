@@ -56,23 +56,29 @@ export default function MailboxPage() {
     async (showLoading = true) => {
       if (showLoading) setLoading(true);
       try {
+        const state = useUiStore.getState();
+        const currentFolder = state.activeFolder;
+        const currentAlias = state.selectedAlias;
+        const currentFilter = state.activeFilter;
+        const currentSearch = state.searchQuery;
+
         const params = new URLSearchParams();
-        const isStarredView = activeFolder === "starred" || activeFilter === "starred";
+        const isStarredView = currentFolder === "starred" || currentFilter === "starred";
 
         if (isStarredView) {
           params.set("starred", "true");
         } else {
-          params.set("folder", activeFolder);
+          params.set("folder", currentFolder);
         }
 
-        if (selectedAlias !== "all") params.set("alias", selectedAlias);
-        if (searchQuery.trim()) params.set("q", searchQuery.trim());
+        if (currentAlias !== "all") params.set("alias", currentAlias);
+        if (currentSearch.trim()) params.set("q", currentSearch.trim());
 
         const res = await fetch(`/api/emails?${params.toString()}`);
         if (res.ok) {
           const data = await res.json();
           let list = data.emails as Email[];
-          if (activeFilter === "unread") {
+          if (currentFilter === "unread") {
             list = list.filter((e) => !e.is_read);
           }
           setEmails(list);
@@ -90,15 +96,20 @@ export default function MailboxPage() {
         if (showLoading) setLoading(false);
       }
     },
-    [activeFolder, selectedAlias, searchQuery, activeFilter, selectEmail]
+    [selectEmail]
   );
 
-  // Initial load
+  // Initial load: initialize persisted settings first, then fetch
   useEffect(() => {
     useUiStore.getState().initSettings();
     fetchStatus();
     fetchEmails();
   }, [fetchStatus, fetchEmails]);
+
+  // Re-fetch emails whenever activeFolder, selectedAlias, searchQuery, or activeFilter changes
+  useEffect(() => {
+    fetchEmails();
+  }, [activeFolder, selectedAlias, searchQuery, activeFilter, fetchEmails]);
 
   // Automatically mark email as read when opened
   useEffect(() => {
@@ -146,7 +157,7 @@ export default function MailboxPage() {
               setEmails((prev) => {
                 if (prev.some((e) => e.id === newEmail.id)) return prev;
 
-                const matchesFolder = newEmail.folder === activeFolder;
+                const matchesFolder = activeFolder === "all" || newEmail.folder === activeFolder;
                 const matchesAlias =
                   selectedAlias === "all" ||
                   newEmail.matched_alias === selectedAlias ||

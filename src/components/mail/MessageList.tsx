@@ -64,6 +64,8 @@ export function MessageList({
   const title =
     selectedAlias !== "all"
       ? selectedAlias
+      : activeFolder === "all"
+      ? "All Mail"
       : activeFolder.charAt(0).toUpperCase() + activeFolder.slice(1);
 
   return (

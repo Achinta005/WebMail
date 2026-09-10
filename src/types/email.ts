@@ -20,7 +20,7 @@ export interface Email {
   snippet: string;
   html_body: string | null;
   text_body: string | null;
-  folder: 'inbox' | 'sent' | 'drafts' | 'trash' | 'archive';
+  folder: 'inbox' | 'sent' | 'drafts' | 'trash' | 'archive' | 'all';
   is_read: boolean;
   is_starred: boolean;
   created_at: string;
@@ -72,5 +72,6 @@ export interface MailboxStats {
   sentCount: number;
   starredCount: number;
   trashCount: number;
+  allCount?: number;
   aliases: { alias: string; count: number; unreadCount: number }[];
 }

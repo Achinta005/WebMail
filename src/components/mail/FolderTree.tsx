@@ -7,6 +7,7 @@ import {
   FileText,
   Trash2,
   Star,
+  Mail,
   AtSign,
   ChevronDown,
   ChevronRight,
@@ -84,6 +85,7 @@ export function FolderTree({ stats, domainName, onRefresh }: FolderTreeProps) {
 
   const primaryFolders = [
     { id: "inbox", name: "Inbox", icon: Inbox, count: stats?.inboxCount, unread: stats?.unreadCount },
+    { id: "all", name: "All Mail", icon: Mail, count: stats?.allCount },
     { id: "sent", name: "Sent", icon: Send, count: stats?.sentCount },
     { id: "starred", name: "Starred", icon: Star, count: stats?.starredCount },
     { id: "drafts", name: "Drafts", icon: FileText },
