@@ -86,9 +86,31 @@ function LoginContent() {
           <span>Sign in with Google</span>
         </button>
 
-        <div className="pt-2 text-[11px] text-muted-foreground/60 flex items-center gap-1.5">
-          <Mail className="size-3" />
-          <span>Ficxus Mail Engine & Resend Cloud</span>
+        <div className="pt-2 flex flex-col items-center gap-2">
+          <div className="text-[11px] text-muted-foreground/60 flex items-center gap-1.5">
+            <Mail className="size-3" />
+            <span>Ficxus Mail Engine &amp; Resend Cloud</span>
+          </div>
+
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground/60">
+            <a
+              href="/privacy-policy"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+            >
+              Privacy Policy
+            </a>
+            <span>•</span>
+            <a
+              href="/terms-conditions"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+            >
+              Terms &amp; Conditions
+            </a>
+          </div>
         </div>
       </div>
     </div>
