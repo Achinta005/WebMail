@@ -84,11 +84,14 @@ export function EmailRenderer({
               color: ${fgColor};
               background-color: transparent;
               margin: 0;
-              padding: 16px;
+              padding: 12px;
               word-wrap: break-word;
+              overflow-wrap: break-word;
+              max-width: 100%;
+              box-sizing: border-box;
             }
             a { color: #f97316; text-decoration: underline; text-underline-offset: 2px; }
-            img { max-width: 100%; height: auto; border-radius: 4px; }
+            img { max-width: 100% !important; height: auto !important; border-radius: 4px; }
             blockquote {
               border-left: 3px solid #f97316;
               padding-left: 12px;
@@ -102,9 +105,24 @@ export function EmailRenderer({
               font-size: 85%;
               font-family: monospace;
               color: ${fgColor};
+              white-space: pre-wrap;
+              word-break: break-word;
             }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { padding: 6px; }
+            table {
+              border-collapse: collapse;
+              max-width: 100% !important;
+              table-layout: auto;
+            }
+            td, th {
+              padding: 6px;
+              max-width: 100%;
+              word-break: break-word;
+            }
+            /* Ensure fixed-width container emails scale gracefully on mobile */
+            div, p, span, center {
+              max-width: 100% !important;
+              box-sizing: border-box !important;
+            }
           </style>
         </head>
         <body>${content}</body>
@@ -118,22 +136,39 @@ export function EmailRenderer({
     // Auto-adjust height
     const updateHeight = () => {
       if (iframe && iframe.contentWindow?.document.body) {
-        iframe.style.height = `${iframe.contentWindow.document.body.scrollHeight + 32}px`;
+        const body = iframe.contentWindow.document.body;
+        const htmlDoc = iframe.contentWindow.document.documentElement;
+        const newHeight = Math.max(
+          body.scrollHeight,
+          body.offsetHeight,
+          htmlDoc.clientHeight,
+          htmlDoc.scrollHeight,
+          htmlDoc.offsetHeight
+        );
+        iframe.style.height = `${newHeight + 32}px`;
       }
     };
 
     updateHeight();
     const timeout = setTimeout(updateHeight, 300);
-    return () => clearTimeout(timeout);
+    const timeout2 = setTimeout(updateHeight, 1000);
+
+    window.addEventListener("resize", updateHeight);
+
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(timeout2);
+      window.removeEventListener("resize", updateHeight);
+    };
   }, [html, text, blockRemoteResources, theme]);
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-auto">
       <iframe
         ref={iframeRef}
         title="Email Body"
         sandbox="allow-same-origin allow-popups"
-        className="w-full border-0 min-h-[300px]"
+        className="w-full border-0 min-h-[300px] block"
       />
     </div>
   );

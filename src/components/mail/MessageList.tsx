@@ -73,12 +73,24 @@ export function MessageList({
       {/* Top Header & Search Bar */}
       <div className="p-3 border-b border-border/60 space-y-2.5 flex-shrink-0">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold text-foreground tracking-tight capitalize">
-              {title}
-            </h2>
-            <div className="text-[11px] text-muted-foreground">
-              {emails.length} message{emails.length === 1 ? "" : "s"}
+          <div className="flex items-center gap-2 min-w-0">
+            {/* Mobile menu button */}
+            <button
+              type="button"
+              onClick={() => useUiStore.getState().setMobilePanelView("sidebar")}
+              className="md:hidden p-1.5 -ml-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Open folders menu"
+            >
+              <SlidersHorizontal className="size-4 text-primary" />
+            </button>
+
+            <div className="min-w-0">
+              <h2 className="text-sm font-semibold text-foreground tracking-tight capitalize truncate">
+                {title}
+              </h2>
+              <div className="text-[11px] text-muted-foreground">
+                {emails.length} message{emails.length === 1 ? "" : "s"}
+              </div>
             </div>
           </div>
 

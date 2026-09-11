@@ -47,7 +47,8 @@ export function NavRail({
 
   return (
     <Tooltip.Provider delayDuration={200}>
-      <div className="w-14 h-full flex-shrink-0 bg-sidebar border-r border-sidebar-border flex flex-col items-center py-3 justify-between z-20">
+      {/* Desktop Vertical NavRail */}
+      <div className="hidden md:flex w-14 h-full flex-shrink-0 bg-sidebar border-r border-sidebar-border flex-col items-center py-3 justify-between z-20">
         {/* Top actions */}
         <div className="flex flex-col items-center gap-3 w-full">
           {/* Logo or Toggle Sidebar */}
@@ -238,6 +239,85 @@ export function NavRail({
             </Tooltip.Portal>
           </Tooltip.Root>
         </div>
+      </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-card/95 backdrop-blur border-t border-border flex items-center justify-around px-3 z-40">
+        {/* Toggle Folder Menu */}
+        <button
+          type="button"
+          onClick={() => useUiStore.getState().setMobilePanelView("sidebar")}
+          className="flex flex-col items-center gap-0.5 p-1 text-muted-foreground hover:text-primary transition-colors"
+          title="Folders"
+        >
+          <div className="size-5 rounded-md overflow-hidden flex items-center justify-center">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={20}
+              height={20}
+              className="size-full object-contain"
+            />
+          </div>
+          <span className="text-[10px] font-medium">Mailboxes</span>
+        </button>
+
+        {/* Sync */}
+        <button
+          type="button"
+          onClick={onSync}
+          disabled={isSyncing}
+          className="flex flex-col items-center gap-0.5 p-1 text-muted-foreground hover:text-primary transition-colors disabled:opacity-50"
+          title="Sync"
+        >
+          <RefreshCw className={`size-4 ${isSyncing ? "animate-spin text-primary" : ""}`} />
+          <span className="text-[10px] font-medium">Sync</span>
+        </button>
+
+        {/* Compose Floating Button */}
+        <button
+          type="button"
+          onClick={() => openCompose()}
+          className="size-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg -mt-4 active:scale-95 transition-transform"
+          title="Compose"
+        >
+          <PenSquare className="size-5" />
+        </button>
+
+        {/* Theme */}
+        {mounted && (
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="flex flex-col items-center gap-0.5 p-1 text-muted-foreground hover:text-primary transition-colors"
+            title="Theme"
+          >
+            {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+            <span className="text-[10px] font-medium">Theme</span>
+          </button>
+        )}
+
+        {/* Settings */}
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          className="flex flex-col items-center gap-0.5 p-1 text-muted-foreground hover:text-primary transition-colors"
+          title="Settings"
+        >
+          <Settings className="size-4" />
+          <span className="text-[10px] font-medium">Config</span>
+        </button>
+
+        {/* Logout */}
+        <button
+          type="button"
+          onClick={logout}
+          className="flex flex-col items-center gap-0.5 p-1 text-muted-foreground hover:text-destructive transition-colors"
+          title="Sign out"
+        >
+          <LogOut className="size-4" />
+          <span className="text-[10px] font-medium">Exit</span>
+        </button>
       </div>
     </Tooltip.Provider>
   );

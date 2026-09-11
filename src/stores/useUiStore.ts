@@ -146,12 +146,12 @@ export const useUiStore: UseBoundStore<StoreApi<UiState>> = create<UiState>((set
 
   setActiveFolder: (folder) => {
     saveSettings({ activeFolder: folder, selectedAlias: "all" });
-    set({ activeFolder: folder, selectedAlias: "all", selectedEmailId: null });
+    set({ activeFolder: folder, selectedAlias: "all", selectedEmailId: null, mobilePanelView: "list" });
   },
 
   setSelectedAlias: (alias) => {
     saveSettings({ selectedAlias: alias, activeFolder: "inbox" });
-    set({ selectedAlias: alias, activeFolder: "inbox", selectedEmailId: null });
+    set({ selectedAlias: alias, activeFolder: "inbox", selectedEmailId: null, mobilePanelView: "list" });
   },
 
   selectEmail: (id) =>

@@ -102,14 +102,25 @@ export function FolderTree({ stats, domainName, onRefresh }: FolderTreeProps) {
               Domain: <span className="font-bold text-primary">{domainName || "achinta.me"}</span>
             </span>
           </div>
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            title="Collapse sidebar"
-            className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors flex-shrink-0"
-          >
-            <PanelLeftClose className="size-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            {/* Mobile close sidebar button */}
+            <button
+              type="button"
+              onClick={() => useUiStore.getState().setMobilePanelView("list")}
+              className="md:hidden p-1 rounded text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+              title="Close menu"
+            >
+              <X className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              title="Collapse sidebar"
+              className="hidden md:flex p-1 rounded text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors flex-shrink-0"
+            >
+              <PanelLeftClose className="size-3.5" />
+            </button>
+          </div>
         </div>
       </div>
 

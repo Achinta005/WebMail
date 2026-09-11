@@ -82,7 +82,7 @@ export function ThreePanelLayout({
 
   if (isMobile) {
     return (
-      <div className="flex h-full w-full overflow-hidden bg-background">
+      <div className="flex h-full w-full overflow-hidden bg-background pb-14 md:pb-0">
         {mobilePanelView === "sidebar" && (
           <div className="h-full w-full">{sidebar}</div>
         )}

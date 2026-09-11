@@ -45,9 +45,41 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Missing id parameter' }, { status: 400 });
     }
 
-    const res = await fetch(`${FICXUS_URL}/attachments/${id}`, { cache: 'no-store' });
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    // Call Ficxus attachment endpoint (do not auto-follow redirects so we can preserve redirect or stream)
+    const res = await fetch(`${FICXUS_URL}/attachments/${id}`, {
+      cache: 'no-store',
+      redirect: 'manual',
+    });
+
+    // If Ficxus returned a redirect (e.g. 302 to Cloudinary or signed URL)
+    if (res.status === 301 || res.status === 302 || res.status === 307 || res.status === 308) {
+      const location = res.headers.get('location');
+      if (location) {
+        return NextResponse.redirect(location, 302);
+      }
+    }
+
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const data = await res.json();
+      if (data.redirectUrl) {
+        return NextResponse.redirect(data.redirectUrl, 302);
+      }
+      return NextResponse.json(data, { status: res.status });
+    }
+
+    // If it is binary stream / file content
+    const headers = new Headers();
+    const contentDisposition = res.headers.get('content-disposition');
+    const contentLength = res.headers.get('content-length');
+    if (contentType) headers.set('Content-Type', contentType);
+    if (contentDisposition) headers.set('Content-Disposition', contentDisposition);
+    if (contentLength) headers.set('Content-Length', contentLength);
+
+    return new NextResponse(res.body, {
+      status: res.status,
+      headers,
+    });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Failed to fetch attachment';
     return NextResponse.json({ error: message }, { status: 502 });
