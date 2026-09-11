@@ -12,7 +12,8 @@ function LoginContent() {
   const handleGoogleLogin = () => {
     const backendUrl =
       process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3001";
-    const targetUrl = `${backendUrl.replace(/\/$/, "")}/api/webmail/auth/google`;
+    const currentOrigin = window.location.origin;
+    const targetUrl = `${backendUrl.replace(/\/$/, "")}/api/webmail/auth/google?redirect=${encodeURIComponent(currentOrigin)}`;
     window.location.href = targetUrl;
   };
 
