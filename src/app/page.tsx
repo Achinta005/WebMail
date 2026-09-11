@@ -10,9 +10,11 @@ import { ReadingPane } from "@/components/mail/ReadingPane";
 import { ComposeDialog } from "@/components/mail/ComposeDialog";
 import { SettingsModal } from "@/components/mail/SettingsModal";
 import { useUiStore } from "@/stores/useUiStore";
+import { useAuth } from "@/context/AuthContext";
 import type { Email, MailboxStats, SendEmailPayload } from "@/types/email";
 
 export default function MailboxPage() {
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const activeFolder = useUiStore((s) => s.activeFolder);
   const selectedAlias = useUiStore((s) => s.selectedAlias);
   const selectedEmailId = useUiStore((s) => s.selectedEmailId);
@@ -102,14 +104,18 @@ export default function MailboxPage() {
   // Initial load: initialize persisted settings first, then fetch
   useEffect(() => {
     useUiStore.getState().initSettings();
-    fetchStatus();
-    fetchEmails();
-  }, [fetchStatus, fetchEmails]);
+    if (isAuthenticated) {
+      fetchStatus();
+      fetchEmails();
+    }
+  }, [fetchStatus, fetchEmails, isAuthenticated]);
 
   // Re-fetch emails whenever activeFolder, selectedAlias, searchQuery, or activeFilter changes
   useEffect(() => {
-    fetchEmails();
-  }, [activeFolder, selectedAlias, searchQuery, activeFilter, fetchEmails]);
+    if (isAuthenticated) {
+      fetchEmails();
+    }
+  }, [activeFolder, selectedAlias, searchQuery, activeFilter, fetchEmails, isAuthenticated]);
 
   // Automatically mark email as read when opened
   useEffect(() => {
@@ -203,13 +209,14 @@ export default function MailboxPage() {
       }
     };
 
+    if (!isAuthenticated) return;
     connectSse();
 
     return () => {
       if (eventSource) eventSource.close();
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
     };
-  }, [activeFolder, selectedAlias]);
+  }, [activeFolder, selectedAlias, isAuthenticated]);
 
   // Sync with Resend
   const handleSync = async () => {
@@ -347,6 +354,18 @@ export default function MailboxPage() {
   };
 
   const selectedEmail = emails.find((e) => e.id === selectedEmailId) || null;
+
+  if (isAuthLoading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-background text-xs text-muted-foreground">
+        Loading mailbox session...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background font-sans text-foreground">

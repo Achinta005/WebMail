@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Suspense } from 'react';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
   title: 'Achinta WebMail - @achinta.me',
@@ -41,7 +43,11 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-background text-foreground antialiased min-h-screen">
-        {children}
+        <Suspense fallback={null}>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </Suspense>
       </body>
     </html>
   );

@@ -10,10 +10,12 @@ import {
   Radio,
   RefreshCw,
   PanelLeftOpen,
+  LogOut,
 } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { useUiStore } from "@/stores/useUiStore";
 import { useComposeStore } from "@/stores/useComposeStore";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavRailProps {
   onSync: () => void;
@@ -33,6 +35,7 @@ export function NavRail({
   const isSidebarCollapsed = useUiStore((s) => s.isSidebarCollapsed);
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
   const openCompose = useComposeStore((s) => s.openCompose);
+  const { logout } = useAuth();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -208,6 +211,29 @@ export function NavRail({
                 className="rounded-md bg-popover px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-md border border-border"
               >
                 Settings & API Status
+              </Tooltip.Content>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+
+          {/* Logout */}
+          <Tooltip.Root>
+            <Tooltip.Trigger asChild>
+              <button
+                type="button"
+                onClick={logout}
+                aria-label="Sign out"
+                className="size-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <LogOut className="size-4" />
+              </button>
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Content
+                side="right"
+                sideOffset={8}
+                className="rounded-md bg-popover px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-md border border-border"
+              >
+                Sign out
               </Tooltip.Content>
             </Tooltip.Portal>
           </Tooltip.Root>
